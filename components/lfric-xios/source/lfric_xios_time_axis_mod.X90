@@ -11,7 +11,7 @@
 module lfric_xios_time_axis_mod
 
   use constants_mod,        only: i_def, str_def, str_long, &
-                                  str_max_filename, r_def, l_def
+                                  str_max_filename, r_def, r_second, l_def
   use field_mod,            only: field_type, field_proxy_type
   use field_parent_mod,     only: field_parent_type
   use field_collection_iterator_mod, &
@@ -237,7 +237,7 @@ contains
 
     ! Local variables for XIOS interface
     integer(i_def)                :: time_axis_size, i, t
-    real(r_def), allocatable      :: input_data(:)
+    real(r_second), allocatable   :: input_data(:)
     character(str_def)            :: time_units, ref_date_str, var_id, dim_id
     character(str_long)           :: unit_attr
     character(str_def), parameter :: valid_units(4) = &

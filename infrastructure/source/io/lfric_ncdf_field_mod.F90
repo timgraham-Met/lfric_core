@@ -7,6 +7,8 @@
 !> @brief  Handler object for NetCDF field data.
 module lfric_ncdf_field_mod
 
+  use, intrinsic :: iso_fortran_env, only: real32, real64
+
   use constants_mod,       only: r_def, dp_native, i_def, str_def, str_long
   use lfric_ncdf_file_mod, only: lfric_ncdf_file_type
   use lfric_ncdf_dims_mod, only: lfric_ncdf_dims_type
@@ -34,12 +36,15 @@ module lfric_ncdf_field_mod
 
   contains
 
-    procedure, public :: read_data
-    procedure, public :: write_data
-    procedure, public :: set_char_attribute
-    procedure, public :: get_char_attribute
-    procedure, public :: set_real_attribute
-    procedure, public :: get_real_attribute
+    procedure, private :: read_data_real32
+    procedure, private :: read_data_real64
+    generic            :: read_data => read_data_real32,    &
+                                       read_data_real64
+    procedure, public  :: write_data
+    procedure, public  :: set_char_attribute
+    procedure, public  :: get_char_attribute
+    procedure, public  :: set_real_attribute
+    procedure, public  :: get_real_attribute
 
   end type
 
@@ -103,18 +108,18 @@ function lfric_ncdf_field_constructor(name, file, dims) result(self)
   end function lfric_ncdf_field_constructor
 
 
-  !> @brief  Reads a variable's data from the NetCDF file.
+  !> @brief  Reads a variable's real32 data from the NetCDF file.
   !>
-  !> @param[out]  field_data  Field data read from the file
-  subroutine read_data(self, field_data)
+  !> @param[out]  field_data  Real32 field data read from the file
+  subroutine read_data_real32(self, field_data)
 
     implicit none
 
     class(lfric_ncdf_field_type), intent(in)  :: self
-    real(kind=r_def),             intent(out) :: field_data(:)
+    real(kind=real32),            intent(out) :: field_data(:)
 
     integer(kind=i_def)         :: ierr
-    character(len=*), parameter :: routine = 'read_data'
+    character(len=*), parameter :: routine = 'read_data_real32'
     character(len=str_long)     :: cmess
 
     ierr = nf90_get_var(self%file%get_id(), self%varid, field_data(:))
@@ -124,7 +129,30 @@ function lfric_ncdf_field_constructor(name, file, dims) result(self)
 
     return
 
-  end subroutine read_data
+  end subroutine read_data_real32
+
+  !> @brief  Reads a variable's real64 data from the NetCDF file.
+  !>
+  !> @param[out]  field_data  Real64 field data read from the file
+  subroutine read_data_real64(self, field_data)
+
+    implicit none
+
+    class(lfric_ncdf_field_type), intent(in)  :: self
+    real(kind=real64),            intent(out) :: field_data(:)
+
+    integer(kind=i_def)         :: ierr
+    character(len=*), parameter :: routine = 'read_data_real64'
+    character(len=str_long)     :: cmess
+
+    ierr = nf90_get_var(self%file%get_id(), self%varid, field_data(:))
+
+    cmess = "Getting NetCDF variable with ID: " // trim(self%name)
+    call check_err(ierr, routine, cmess)
+
+    return
+
+  end subroutine read_data_real64
 
   !> @brief  Writes data to the NetCDF field.
   !>
